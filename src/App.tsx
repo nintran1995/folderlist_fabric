@@ -1,17 +1,7 @@
 import React from "react";
-import {
-  mergeStyleSets,
-  ContextualMenuItemType,
-  ContextualMenu,
-  DirectionalHint,
-  IColumn,
-  Fabric,
-  TextField,
-  CommandBar
-} from "office-ui-fabric-react";
+import { Fabric, TextField, CommandBar } from "office-ui-fabric-react";
 import "./App.css";
 import { FolderItems } from "./FolderItem/FolderItems";
-import { createListItems } from "./exampleData";
 import { FolderItemsGrid } from "./FolderItem/FolderItemsGrid";
 import { FolderContextualMenu } from "./FolderItem/FolderContextualMenu";
 
@@ -22,6 +12,7 @@ export interface IListGridExampleStates {
   items: IDocument[];
 }
 export interface IDocument {
+  index: number;
   name: string;
   value: string;
   iconName: string;
@@ -31,12 +22,12 @@ export interface IDocument {
   dateModifiedValue: number;
   fileSize: string;
   fileSizeRaw: number;
+  check: boolean;
 }
 export interface IDetailsListDocumentsExampleState {
   items: IDocument[];
 }
 
-const _cachedItems = createListItems(20);
 function _randomDate(
   start: Date,
   end: Date
@@ -88,7 +79,9 @@ function _randomFileIcon(): { docType: string; url: string } {
     FILE_ICONS[Math.floor(Math.random() * FILE_ICONS.length)].name;
   return {
     docType,
-    url: `https://static2.sharepointonline.com/files/fabric/assets/brand-icons/document/svg/${docType}_16x1.svg`
+    // url: `https://static2.sharepointonline.com/files/fabric/assets/brand-icons/document/svg/${docType}_16x1.svg`
+    url:
+      "https://spoprod-a.akamaihd.net/files/odsp-next-prod_2019-05-31_20190606.002/odsp-media/images/itemtypesfluent/20/folder.svg"
   };
 }
 
@@ -123,6 +116,7 @@ function _generateDocuments() {
       .map((name: string) => name.charAt(0).toUpperCase() + name.slice(1))
       .join(" ");
     items.push({
+      index: i,
       name: fileName,
       value: fileName,
       iconName: randomFileType.url,
@@ -131,7 +125,8 @@ function _generateDocuments() {
       dateModified: randomDate.dateFormatted,
       dateModifiedValue: randomDate.value,
       fileSize: randomFileSize.value,
-      fileSizeRaw: randomFileSize.rawSize
+      fileSizeRaw: randomFileSize.rawSize,
+      check: false
     });
   }
   return items;
@@ -174,6 +169,11 @@ export class App extends React.Component<
     this.clientX = e.clientX;
     this.clientY = e.clientY;
     this.setState({ isOpenContextualMenu: true });
+  };
+
+  private _onSelect = (item: IDocument) => {
+    this._allItems[item.index].check = !item.check;
+    this.setState({ items: [...this._allItems] });
   };
 
   clientX: any;
@@ -312,7 +312,8 @@ export class App extends React.Component<
           />
         ) : (
           <FolderItems
-            items={_cachedItems}
+            items={this.state.items}
+            onSelect={this._onSelect}
             onOpenContextualMenu={this._onOpenContextualMenu}
           />
         )}

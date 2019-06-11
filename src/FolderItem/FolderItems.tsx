@@ -10,6 +10,7 @@ import {
 
 interface IFolderItemsProps {
   items: any[];
+  onSelect(item: any): void;
   onOpenContextualMenu(e: any): void;
 }
 interface IFolderItemsState {}
@@ -63,58 +64,58 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
 
   private _onRenderCell = (item: any, index: any): JSX.Element => {
     return (
-      <Fabric>
-        <div
-          className="folder-item-contain"
-          data-selection-index={index}
-          data-is-focusable={true}
-          style={{
-            width: 100 / this._columnCount + "%"
-          }}
-          onContextMenu={e => {
-            e.preventDefault();
-            this.props.onOpenContextualMenu(e);
-          }}
-        >
-          <div className="folder-content">
-            <span
-              className="folder-content-check"
-              role="checkbox"
-              aria-checked="true"
-              onClick={() => {
-                console.log(item);
-                item.check = true;
-                this.forceUpdate();
-              }}
-            >
-              <Check className={classNames.check} checked={item.check} />
-            </span>
-            <div className="folder-content-sizer">
-              <div className="folder-content-padder">
-                <div className="folder-cover">
-                  <i className="folder-cover-back">
-                    <img src="https://spoprod-a.akamaihd.net/files/fabric/office-ui-fabric-react-assets/foldericons-fluent/folder-large_backplate.svg" />
-                  </i>
-                  {index % 2 != 0 ? (
-                    <span className="folder-cover-blank">
-                      <span className="folder-cover-frame">
-                        <span style={{ width: "104px", height: "64px" }} />
-                      </span>
+      <div
+        className="folder-item-contain"
+        data-selection-index={index}
+        data-is-focusable={true}
+        style={{
+          width: 100 / this._columnCount + "%"
+        }}
+        onContextMenu={e => {
+          e.preventDefault();
+          this.props.onOpenContextualMenu(e);
+        }}
+      >
+        <div className="folder-content">
+          <span
+            className={
+              item.check
+                ? "folder-content-check is-checked"
+                : "folder-content-check"
+            }
+            role="checkbox"
+            aria-checked="true"
+            onClick={() => {
+              this.props.onSelect(item);
+            }}
+          >
+            <Check className={classNames.check} checked={item.check} />
+          </span>
+          <div className="folder-content-sizer">
+            <div className="folder-content-padder">
+              <div className="folder-cover">
+                <i className="folder-cover-back">
+                  <img src="https://spoprod-a.akamaihd.net/files/fabric/office-ui-fabric-react-assets/foldericons-fluent/folder-large_backplate.svg" />
+                </i>
+                {index % 2 != 0 ? (
+                  <span className="folder-cover-blank">
+                    <span className="folder-cover-frame">
+                      <span style={{ width: "104px", height: "64px" }} />
                     </span>
-                  ) : null}
-                  <i className="folder-cover-front">
-                    <img src="https://spoprod-a.akamaihd.net/files/fabric/office-ui-fabric-react-assets/foldericons-fluent/folder-large_frontplate_nopreview.svg" />
-                  </i>
-                  <span className="folder-content-child">
-                    {index % 2 != 0 ? index : 0}
                   </span>
-                </div>
-                <span className="folder-content-info">{`item ${index}`}</span>
+                ) : null}
+                <i className="folder-cover-front">
+                  <img src="https://spoprod-a.akamaihd.net/files/fabric/office-ui-fabric-react-assets/foldericons-fluent/folder-large_frontplate_nopreview.svg" />
+                </i>
+                <span className="folder-content-child">
+                  {index % 2 != 0 ? index : 0}
+                </span>
               </div>
+              <span className="folder-content-info">{item.name}</span>
             </div>
           </div>
         </div>
-      </Fabric>
+      </div>
     );
   };
 
@@ -123,6 +124,7 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
   };
 
   public render() {
+    console.log(this.props.items);
     return (
       <FocusZone>
         <List

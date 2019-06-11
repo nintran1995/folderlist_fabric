@@ -36,11 +36,11 @@
   padding-bottom: 100%;
 }
 
-.ms-Checkbox.is-checked+.folder-content-sizer {
+.folder-content-check.is-checked+.folder-content-sizer {
   background: #f4f4f4;
 }
 
-.folder-content:hover .ms-Checkbox.is-checked+.folder-content-sizer {
+.folder-content:hover .folder-content-check.is-checked+.folder-content-sizer {
   background: #dadada;
 }
 
@@ -189,6 +189,9 @@ html[dir='ltr'] .folder-cover .folder-content-child {
   font-weight: 400;
   font-family: "Segoe UI Web (Vietnamese)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /*#endregion folder-item-info*/
@@ -207,7 +210,7 @@ html[dir='ltr'] .folder-cover .folder-content-child {
   opacity: 1;
 }
 
-.ms-Checkbox.is-checked {
+.folder-content-check.is-checked {
   opacity: 1;
 }
 

@@ -7,8 +7,10 @@ import {
   SelectionMode,
   DetailsListLayoutMode,
   Fabric,
-  mergeStyleSets
+  mergeStyleSets,
+  IObjectWithKey
 } from "office-ui-fabric-react";
+import { IDocument } from "../App";
 
 interface IFolderItemsGridProps {
   items: any[];
@@ -17,18 +19,6 @@ interface IFolderItemsGridProps {
 interface IFolderItemsGridState {
   columns: IColumn[];
   selectionDetails: string;
-}
-
-export interface IDocument {
-  name: string;
-  value: string;
-  iconName: string;
-  fileType: string;
-  modifiedBy: string;
-  dateModified: string;
-  dateModifiedValue: number;
-  fileSize: string;
-  fileSizeRaw: number;
 }
 
 const classNames = mergeStyleSets({
@@ -74,7 +64,7 @@ export class FolderItemsGrid extends React.Component<
   IFolderItemsGridState
 > {
   private _selection: Selection;
-  
+
   private _getSelectionDetails(): string {
     const selectionCount = this._selection.getSelectedCount();
 
