@@ -1,49 +1,141 @@
 import React from "react";
 import {
-  FocusZone,
-  List,
   mergeStyleSets,
-  IRawStyle,
   ContextualMenuItemType,
   ContextualMenu,
   DirectionalHint,
-  Check
+  IColumn,
+  Fabric,
+  TextField,
+  CommandBar
 } from "office-ui-fabric-react";
 import "./App.css";
+import { FolderItems } from "./FolderItem/FolderItems";
+import { createListItems } from "./exampleData";
+import { FolderItemsGrid } from "./FolderItem/FolderItemsGrid";
+import { FolderContextualMenu } from "./FolderItem/FolderContextualMenu";
 
-export interface IListGridExampleProps {
-  items?: any[];
+export interface IListGridExampleProps {}
+export interface IListGridExampleStates {
+  isOpenContextualMenu: boolean;
+  isGrid: boolean;
+  items: IDocument[];
+}
+export interface IDocument {
+  name: string;
+  value: string;
+  iconName: string;
+  fileType: string;
+  modifiedBy: string;
+  dateModified: string;
+  dateModifiedValue: number;
+  fileSize: string;
+  fileSizeRaw: number;
+}
+export interface IDetailsListDocumentsExampleState {
+  items: IDocument[];
 }
 
-interface IListGridExampleStates {
-  contextualMenuVisible: boolean;
+const _cachedItems = createListItems(20);
+function _randomDate(
+  start: Date,
+  end: Date
+): { value: number; dateFormatted: string } {
+  const date: Date = new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime())
+  );
+  return {
+    value: date.valueOf(),
+    dateFormatted: date.toLocaleDateString()
+  };
 }
 
-const ROWS_PER_PAGE = 3;
-const MAX_ROW_HEIGHT = 195;
+function _randomFileSize(): { value: string; rawSize: number } {
+  const fileSize: number = Math.floor(Math.random() * 100) + 30;
+  return {
+    value: `${fileSize} KB`,
+    rawSize: fileSize
+  };
+}
 
-const commonStyles: IRawStyle = {
-  display: "inline-block",
-  cursor: "default",
-  boxSizing: "border-box",
-  verticalAlign: "top",
-  background: "none",
-  backgroundColor: "transparent",
-  border: "none"
+const FILE_ICONS: { name: string }[] = [
+  { name: "accdb" },
+  { name: "csv" },
+  { name: "docx" },
+  { name: "dotx" },
+  { name: "mpt" },
+  { name: "odt" },
+  { name: "one" },
+  { name: "onepkg" },
+  { name: "onetoc" },
+  { name: "pptx" },
+  { name: "pub" },
+  { name: "vsdx" },
+  { name: "xls" },
+  { name: "xlsx" },
+  { name: "xsn" }
+];
+
+const controlStyles = {
+  root: {
+    margin: "0 30px 20px 0",
+    maxWidth: "300px"
+  }
 };
 
-const classNames = mergeStyleSets({
-  check: [
-    commonStyles,
-    {
-      position: "absolute",
-      cursor: "pointer",
-      zIndex: 10,
-      padding: "6px",
-      right: 0
-    }
-  ]
-});
+function _randomFileIcon(): { docType: string; url: string } {
+  const docType: string =
+    FILE_ICONS[Math.floor(Math.random() * FILE_ICONS.length)].name;
+  return {
+    docType,
+    url: `https://static2.sharepointonline.com/files/fabric/assets/brand-icons/document/svg/${docType}_16x1.svg`
+  };
+}
+
+const LOREM_IPSUM = (
+  "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut " +
+  "labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut " +
+  "aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore " +
+  "eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt "
+).split(" ");
+let loremIndex = 0;
+
+function _lorem(wordCount: number): string {
+  const startIndex =
+    loremIndex + wordCount > LOREM_IPSUM.length ? 0 : loremIndex;
+  loremIndex = startIndex + wordCount;
+  return LOREM_IPSUM.slice(startIndex, loremIndex).join(" ");
+}
+
+function _generateDocuments() {
+  const items: IDocument[] = [];
+  for (let i = 0; i < 20; i++) {
+    const randomDate = _randomDate(new Date(2012, 0, 1), new Date());
+    const randomFileSize = _randomFileSize();
+    const randomFileType = _randomFileIcon();
+    let fileName = _lorem(2);
+    fileName =
+      fileName.charAt(0).toUpperCase() +
+      fileName.slice(1).concat(`.${randomFileType.docType}`);
+    let userName = _lorem(2);
+    userName = userName
+      .split(" ")
+      .map((name: string) => name.charAt(0).toUpperCase() + name.slice(1))
+      .join(" ");
+    items.push({
+      name: fileName,
+      value: fileName,
+      iconName: randomFileType.url,
+      fileType: randomFileType.docType,
+      modifiedBy: userName,
+      dateModified: randomDate.dateFormatted,
+      dateModifiedValue: randomDate.value,
+      fileSize: randomFileSize.value,
+      fileSizeRaw: randomFileSize.rawSize
+    });
+  }
+  return items;
+}
 
 export class App extends React.Component<
   IListGridExampleProps,
@@ -51,139 +143,187 @@ export class App extends React.Component<
 > {
   constructor(props: IListGridExampleProps) {
     super(props);
-    this.state = { contextualMenuVisible: false };
-  }
-  private _columnCount: any;
-  private _columnWidth: any;
-  private _rowHeight: any;
-  x: any;
-  y: any;
 
-  public render(): JSX.Element {
+    this._allItems = _generateDocuments();
+
+    this.state = {
+      isOpenContextualMenu: false,
+      isGrid: false,
+      items: this._allItems
+    };
+  }
+
+  private _allItems: IDocument[];
+
+  private _onChangeText = (
+    ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+    text: any
+  ): void => {
+    this.setState({
+      items: text
+        ? this._allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1)
+        : this._allItems
+    });
+  };
+
+  private _onCloseMenuContext = () => {
+    this.setState({ isOpenContextualMenu: false });
+  };
+
+  private _onOpenContextualMenu = (e: any) => {
+    this.clientX = e.clientX;
+    this.clientY = e.clientY;
+    this.setState({ isOpenContextualMenu: true });
+  };
+
+  clientX: any;
+  clientY: any;
+
+  public render() {
     return (
-      <FocusZone>
-        {this.state.contextualMenuVisible && (
-          <ContextualMenu
-            shouldFocusOnMount={true}
-            directionalHint={DirectionalHint.bottomLeftEdge}
-            gapSpace={10}
-            onDismiss={() => {
-              this.setState({ contextualMenuVisible: false });
-            }}
-            target={{ x: this.x, y: this.y }}
-            items={[
-              {
-                key: "newItem",
-                iconProps: {
-                  iconName: "Add"
-                },
-                text: "New",
-                onClick: () => {
-                  alert("Add new");
-                }
+      <Fabric>
+        <CommandBar
+          items={[
+            {
+              key: "newItem",
+              name: "New",
+              cacheKey: "myCacheKey", // changing this key will invalidate this items cache
+              iconProps: {
+                iconName: "Add"
               },
-              {
-                key: "divider_1",
-                itemType: ContextualMenuItemType.Divider
-              },
-              {
-                key: "upload",
-                iconProps: {
-                  iconName: "Upload",
-                  style: {
-                    color: "salmon"
+              ariaLabel: "New",
+              subMenuProps: {
+                items: [
+                  {
+                    key: "emailMessage",
+                    name: "Email message",
+                    iconProps: {
+                      iconName: "Mail"
+                    },
+                    ["data-automation-id"]: "newEmailButton"
+                  },
+                  {
+                    key: "calendarEvent",
+                    name: "Calendar event",
+                    iconProps: {
+                      iconName: "Calendar"
+                    }
                   }
-                },
-                text: "Upload",
-                title: "Upload a file"
+                ]
               }
-            ]}
+            },
+            {
+              key: "upload",
+              name: "Upload",
+              iconProps: {
+                iconName: "Upload"
+              },
+              href: "https://dev.office.com/fabric",
+              ["data-automation-id"]: "uploadButton"
+            },
+            {
+              key: "share",
+              name: "Share",
+              iconProps: {
+                iconName: "Share"
+              },
+              onClick: () => console.log("Share")
+            },
+            {
+              key: "download",
+              name: "Download",
+              iconProps: {
+                iconName: "Download"
+              },
+              onClick: () => console.log("Download")
+            }
+          ]}
+          overflowItems={[
+            {
+              key: "move",
+              name: "Move to...",
+              onClick: () => console.log("Move to"),
+              iconProps: {
+                iconName: "MoveToFolder"
+              }
+            },
+            {
+              key: "copy",
+              name: "Copy to...",
+              onClick: () => console.log("Copy to"),
+              iconProps: {
+                iconName: "Copy"
+              }
+            },
+            {
+              key: "rename",
+              name: "Rename...",
+              onClick: () => console.log("Rename"),
+              iconProps: {
+                iconName: "Edit"
+              }
+            }
+          ]}
+          overflowButtonProps={{ ariaLabel: "More commands" }}
+          farItems={[
+            {
+              key: "sort",
+              name: "Sort",
+              ariaLabel: "Sort",
+              iconProps: {
+                iconName: "SortLines"
+              },
+              onClick: () => console.log("Sort")
+            },
+            {
+              key: "tile",
+              name: "Grid view",
+              ariaLabel: "Grid view",
+              iconProps: {
+                iconName: "Tiles"
+              },
+              iconOnly: true,
+              onClick: () => this.setState({ isGrid: !this.state.isGrid })
+            },
+            {
+              key: "info",
+              name: "Info",
+              ariaLabel: "Info",
+              iconProps: {
+                iconName: "Info"
+              },
+              iconOnly: true,
+              onClick: () => console.log("Info")
+            }
+          ]}
+          ariaLabel={
+            "Use left and right arrow keys to navigate between commands"
+          }
+        />
+        <TextField
+          label="Filter by name:"
+          onChange={this._onChangeText}
+          styles={controlStyles}
+        />
+        {this.state.isGrid ? (
+          <FolderItemsGrid
+            items={this.state.items}
+            onOpenContextualMenu={this._onOpenContextualMenu}
+          />
+        ) : (
+          <FolderItems
+            items={_cachedItems}
+            onOpenContextualMenu={this._onOpenContextualMenu}
           />
         )}
-        <List
-          className="folder-contain"
-          items={this.props.items}
-          getItemCountForPage={this._getItemCountForPage}
-          getPageHeight={this._getPageHeight}
-          renderedWindowsAhead={4}
-          onRenderCell={this._onRenderCell}
-        />
-      </FocusZone>
+        {this.state.isOpenContextualMenu && (
+          <FolderContextualMenu
+            clinetX={this.clientX}
+            clinetY={this.clientY}
+            onClose={this._onCloseMenuContext}
+          />
+        )}
+      </Fabric>
     );
   }
-
-  private _getItemCountForPage = (itemIndex: any, surfaceRect: any): any => {
-    if (itemIndex === 0) {
-      this._columnCount = Math.ceil(surfaceRect.width / MAX_ROW_HEIGHT);
-      this._columnWidth = Math.floor(surfaceRect.width / this._columnCount);
-      this._rowHeight = this._columnWidth;
-    }
-
-    return this._columnCount * ROWS_PER_PAGE;
-  };
-
-  private _getPageHeight = (): number => {
-    return this._rowHeight * ROWS_PER_PAGE;
-  };
-
-  _onCheckboxChange = (ev: any, isChecked: any) => {
-    console.log(`The option has been changed to ${isChecked}.`);
-  };
-
-  private _onRenderCell = (item: any, index: any): JSX.Element => {
-    return (
-      <div
-        className="folder-item-contain"
-        data-selection-index={index}
-        data-is-focusable={true}
-        style={{
-          width: 100 / this._columnCount + "%"
-        }}
-        onContextMenu={e => {
-          e.preventDefault();
-          this.x = e.clientX;
-          this.y = e.clientY;
-          this.setState({ contextualMenuVisible: true });
-        }}
-      >
-        <div className="folder-content">
-          <span
-            className="folder-content-check"
-            role="checkbox"
-            aria-checked="true"
-            onClick={() => {
-              console.log(item);
-              item.check = true;
-              this.forceUpdate();
-            }}
-          >
-            <Check className={classNames.check} checked={item.check} />
-          </span>
-          <div className="folder-content-sizer">
-            <div className="folder-content-padder">
-              <div className="folder-cover">
-                <i className="folder-cover-back">
-                  <img src="https://spoprod-a.akamaihd.net/files/fabric/office-ui-fabric-react-assets/foldericons-fluent/folder-large_backplate.svg" />
-                </i>
-                {index % 2 != 0 ? (
-                  <span className="folder-cover-blank">
-                    <span className="folder-cover-frame">
-                      <span style={{ width: "104px", height: "64px" }} />
-                    </span>
-                  </span>
-                ) : null}
-                <i className="folder-cover-front">
-                  <img src="https://spoprod-a.akamaihd.net/files/fabric/office-ui-fabric-react-assets/foldericons-fluent/folder-large_frontplate_nopreview.svg" />
-                </i>
-                <span className="folder-content-child">
-                  {index % 2 != 0 ? index : 0}
-                </span>
-              </div>
-              <span className="folder-content-info">{`item ${index}`}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
 }
