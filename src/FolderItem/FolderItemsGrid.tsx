@@ -9,7 +9,8 @@ import {
   Fabric,
   mergeStyleSets,
   IObjectWithKey,
-  SelectionZone
+  SelectionZone,
+  TextField
 } from "office-ui-fabric-react";
 import { IDocument } from "../App";
 
@@ -20,8 +21,15 @@ interface IFolderItemsGridProps {
 interface IFolderItemsGridState {
   columns: IColumn[];
   selectionDetails: string;
+  items: any[];
 }
 
+const controlStyles = {
+  root: {
+    margin: "0 30px 20px 0",
+    maxWidth: "300px"
+  }
+};
 const classNames = mergeStyleSets({
   fileIconHeaderIcon: {
     padding: 0,
@@ -172,8 +180,13 @@ export class FolderItemsGrid extends React.Component<
 
     this.state = {
       columns: columns,
-      selectionDetails: this._getSelectionDetails()
+      selectionDetails: this._getSelectionDetails(),
+      items: []
     };
+  }
+
+  componentDidMount() {
+    this.setState({ items: this.props.items });
   }
 
   public render() {
@@ -182,21 +195,21 @@ export class FolderItemsGrid extends React.Component<
         <div className={classNames.selectionDetails}>
           {this.state.selectionDetails}
         </div>
-          <DetailsList
-            items={this.props.items}
-            columns={this.state.columns}
-            selectionMode={SelectionMode.multiple}
-            setKey="set"
-            layoutMode={DetailsListLayoutMode.justified}
-            isHeaderVisible={true}
-            selection={this._selection}
-            selectionPreservedOnEmptyClick={true}
-            onItemInvoked={this._onItemInvoked}
-            enterModalSelectionOnTouch={true}
-            ariaLabelForSelectionColumn="Toggle selection"
-            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-            onItemContextMenu={this._onItemContextMenu}
-          />
+        <DetailsList
+          items={this.state.items}
+          columns={this.state.columns}
+          selectionMode={SelectionMode.multiple}
+          setKey="set"
+          layoutMode={DetailsListLayoutMode.justified}
+          isHeaderVisible={true}
+          selection={this._selection}
+          selectionPreservedOnEmptyClick={true}
+          onItemInvoked={this._onItemInvoked}
+          enterModalSelectionOnTouch={true}
+          ariaLabelForSelectionColumn="Toggle selection"
+          ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+          onItemContextMenu={this._onItemContextMenu}
+        />
       </Fabric>
     );
   }
@@ -225,8 +238,9 @@ export class FolderItemsGrid extends React.Component<
       currColumn.fieldName!,
       currColumn.isSortedDescending
     );
-    // this.props.items = newItems;
+    this.setState({ items: newItems });
   };
+
   private _onItemInvoked(item: any): void {
     alert(`Item invoked: ${item.name}`);
   }

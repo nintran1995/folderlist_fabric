@@ -14,10 +14,10 @@ import { IDocument } from "../App";
 
 interface IFolderItemsProps {
   items: any[];
-  onSelect(items: any[]): void;
   onOpenContextualMenu(e: any): void;
 }
 interface IFolderItemsState {
+  items: any[];
   selectionDetails: string;
   selection: ISelection;
   selectionMode: SelectionMode;
@@ -61,6 +61,7 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
     this._hasMounted = false;
 
     this.state = {
+      items: [],
       selection: new Selection({
         onSelectionChanged: this._onSelectionChanged
       }),
@@ -92,9 +93,9 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
   private _onSelectionChanged = (): void => {
     if (this._hasMounted) {
       this.setState({
-        selectionDetails: this._getSelectionDetails()
+        selectionDetails: this._getSelectionDetails(),
+        items: [...this.state.items]
       });
-      this.props.onSelect(this.state.selection.getSelection());
     }
   };
 
@@ -192,7 +193,7 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
           <div>{this.state.selectionDetails}</div>
           <List
             className="folder-contain"
-            items={this.props.items}
+            items={this.state.items}
             getItemCountForPage={this._getItemCountForPage}
             getPageHeight={this._getPageHeight}
             renderedWindowsAhead={4}
@@ -205,5 +206,6 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
 
   public componentDidMount(): void {
     this._hasMounted = true;
+    this.setState({ items: this.props.items });
   }
 }

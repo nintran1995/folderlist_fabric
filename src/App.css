@@ -29,7 +29,7 @@
 }
 
 .folder-content:hover {
-  background: #f4f4f4;
+  background: rgb(243, 242, 241);
 }
 
 .folder-content-sizer {
@@ -37,11 +37,11 @@
 }
 
 .folder-content-check.is-checked+.folder-content-sizer {
-  background: #f4f4f4;
+  background: rgb(243, 242, 241);
 }
 
 .folder-content:hover .folder-content-check.is-checked+.folder-content-sizer {
-  background: #dadada;
+  background: rgb(237, 235, 233);
 }
 
 .folder-content-padder {

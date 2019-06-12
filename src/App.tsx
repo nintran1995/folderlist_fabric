@@ -66,13 +66,6 @@ const FILE_ICONS: { name: string }[] = [
   { name: "xsn" }
 ];
 
-const controlStyles = {
-  root: {
-    margin: "0 30px 20px 0",
-    maxWidth: "300px"
-  }
-};
-
 function _randomFileIcon(): { docType: string; url: string } {
   const docType: string =
     FILE_ICONS[Math.floor(Math.random() * FILE_ICONS.length)].name;
@@ -124,7 +117,7 @@ function _generateDocuments() {
       dateModified: randomDate.dateFormatted,
       dateModifiedValue: randomDate.value,
       fileSize: randomFileSize.value,
-      fileSizeRaw: randomFileSize.rawSize,
+      fileSizeRaw: randomFileSize.rawSize
     });
   }
   return items;
@@ -137,27 +130,14 @@ export class App extends React.Component<
   constructor(props: IListGridExampleProps) {
     super(props);
 
-    this._allItems = _generateDocuments();
 
     this.state = {
       isOpenContextualMenu: false,
       isGrid: false,
-      items: this._allItems
+      items: _generateDocuments()
     };
   }
 
-  private _allItems: IDocument[];
-
-  private _onChangeText = (
-    ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
-    text: any
-  ): void => {
-    this.setState({
-      items: text
-        ? this._allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1)
-        : this._allItems
-    });
-  };
 
   private _onCloseMenuContext = () => {
     this.setState({ isOpenContextualMenu: false });
@@ -167,10 +147,6 @@ export class App extends React.Component<
     this.clientX = e.clientX;
     this.clientY = e.clientY;
     this.setState({ isOpenContextualMenu: true });
-  };
-
-  private _onSelect = (items: any[]) => {
-    this.setState({ items: [...this._allItems] });
   };
 
   clientX: any;
@@ -297,11 +273,6 @@ export class App extends React.Component<
             "Use left and right arrow keys to navigate between commands"
           }
         />
-        <TextField
-          label="Filter by name:"
-          onChange={this._onChangeText}
-          styles={controlStyles}
-        />
         {this.state.isGrid ? (
           <FolderItemsGrid
             items={this.state.items}
@@ -310,7 +281,6 @@ export class App extends React.Component<
         ) : (
           <FolderItems
             items={this.state.items}
-            onSelect={this._onSelect}
             onOpenContextualMenu={this._onOpenContextualMenu}
           />
         )}
