@@ -22,7 +22,6 @@ export interface IDocument {
   dateModifiedValue: number;
   fileSize: string;
   fileSizeRaw: number;
-  check: boolean;
 }
 export interface IDetailsListDocumentsExampleState {
   items: IDocument[];
@@ -126,7 +125,6 @@ function _generateDocuments() {
       dateModifiedValue: randomDate.value,
       fileSize: randomFileSize.value,
       fileSizeRaw: randomFileSize.rawSize,
-      check: false
     });
   }
   return items;
@@ -171,8 +169,7 @@ export class App extends React.Component<
     this.setState({ isOpenContextualMenu: true });
   };
 
-  private _onSelect = (item: IDocument, value: boolean) => {
-    this._allItems[item.index].check = value;
+  private _onSelect = (items: any[]) => {
     this.setState({ items: [...this._allItems] });
   };
 

@@ -70,6 +70,7 @@
   -webkit-box-align: end;
   -ms-flex-align: end;
   align-items: flex-end;
+  cursor: pointer;
 }
 
 .folder-cover-back {
@@ -204,6 +205,10 @@ html[dir='ltr'] .folder-cover .folder-content-child {
   right: 0;
   margin: 10px;
   opacity: 0;
+}
+
+.folder-content-check>.ms-Check {
+  cursor: pointer;
 }
 
 .folder-content:hover .folder-content-check {

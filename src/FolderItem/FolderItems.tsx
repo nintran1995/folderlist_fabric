@@ -14,7 +14,7 @@ import { IDocument } from "../App";
 
 interface IFolderItemsProps {
   items: any[];
-  onSelect(item: any, value: boolean): void;
+  onSelect(items: any[]): void;
   onOpenContextualMenu(e: any): void;
 }
 interface IFolderItemsState {
@@ -38,7 +38,6 @@ const classNames = mergeStyleSets({
     commonStyles,
     {
       position: "absolute",
-      cursor: "pointer",
       zIndex: 10,
       padding: "6px",
       right: 0
@@ -91,12 +90,11 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
   }
 
   private _onSelectionChanged = (): void => {
-    debugger;
     if (this._hasMounted) {
       this.setState({
         selectionDetails: this._getSelectionDetails()
       });
-      this.forceUpdate();
+      this.props.onSelect(this.state.selection.getSelection());
     }
   };
 
@@ -129,8 +127,6 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
     return (
       <div
         className="folder-item-contain"
-        data-selection-index={index}
-        data-is-focusable={true}
         style={{
           width: 100 / this._columnCount + "%"
         }}
@@ -139,33 +135,26 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
           this.props.onOpenContextualMenu(e);
         }}
       >
-        <div className="folder-content">
+        <div
+          className="folder-content"
+          data-selection-index={index}
+          data-is-focusable={true}
+        >
           <span
             className={
               isSelected
                 ? "folder-content-check is-checked"
                 : "folder-content-check"
             }
-            role="checkbox"
-            aria-checked="true"
             data-is-focusable={true}
             data-selection-toggle={true}
-            onClick={() => {
-              this.props.onSelect(item, !item.check);
-            }}
           >
             <Check className={classNames.check} checked={isSelected} />
           </span>
-          <div
-            className="folder-content-sizer"
-            onClick={() => {
-              this.props.onSelect(item, true);
-            }}
-          >
+          <div className="folder-content-sizer">
             <div className="folder-content-padder">
               <div
                 className="folder-cover"
-                style={{ cursor: "pointer" }}
                 onDoubleClick={() => {
                   alert("Open folder");
                 }}
