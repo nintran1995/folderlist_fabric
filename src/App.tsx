@@ -171,8 +171,8 @@ export class App extends React.Component<
     this.setState({ isOpenContextualMenu: true });
   };
 
-  private _onSelect = (item: IDocument) => {
-    this._allItems[item.index].check = !item.check;
+  private _onSelect = (item: IDocument, value: boolean) => {
+    this._allItems[item.index].check = value;
     this.setState({ items: [...this._allItems] });
   };
 

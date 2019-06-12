@@ -1,19 +1,28 @@
 import * as React from "react";
 import {
-  FocusZone,
   List,
   Check,
   mergeStyleSets,
   IRawStyle,
-  Fabric
+  Fabric,
+  Selection,
+  SelectionZone,
+  ISelection,
+  SelectionMode
 } from "office-ui-fabric-react";
+import { IDocument } from "../App";
 
 interface IFolderItemsProps {
   items: any[];
-  onSelect(item: any): void;
+  onSelect(item: any, value: boolean): void;
   onOpenContextualMenu(e: any): void;
 }
-interface IFolderItemsState {}
+interface IFolderItemsState {
+  selectionDetails: string;
+  selection: ISelection;
+  selectionMode: SelectionMode;
+  canSelect: "all" | "vowels";
+}
 
 const commonStyles: IRawStyle = {
   display: "inline-block",
@@ -34,16 +43,63 @@ const classNames = mergeStyleSets({
       padding: "6px",
       right: 0
     }
-  ]
+  ],
+  selectionDetails: {
+    marginBottom: "20px",
+    marginLeft: "20px"
+  }
 });
 const ROWS_PER_PAGE = 3;
 const MAX_ROW_HEIGHT = 195;
 
 type Props = IFolderItemsProps;
 export class FolderItems extends React.Component<Props, IFolderItemsState> {
+  private _hasMounted: boolean;
+
   constructor(props: Props) {
     super(props);
+
+    this._hasMounted = false;
+
+    this.state = {
+      selection: new Selection({
+        onSelectionChanged: this._onSelectionChanged
+      }),
+      selectionMode: SelectionMode.multiple,
+      canSelect: "all",
+      selectionDetails: this._getSelectionDetails()
+    };
+    this.state.selection.setItems(this.props.items, false);
   }
+
+  private _getSelectionDetails(): string {
+    const selectionCount = this.state
+      ? this.state.selection.getSelectedCount()
+      : 0;
+
+    switch (selectionCount) {
+      case 0:
+        return "No items selected";
+      case 1:
+        return (
+          "1 item selected: " +
+          (this.state.selection.getSelection()[0] as IDocument).name
+        );
+      default:
+        return `${selectionCount} items selected`;
+    }
+  }
+
+  private _onSelectionChanged = (): void => {
+    debugger;
+    if (this._hasMounted) {
+      this.setState({
+        selectionDetails: this._getSelectionDetails()
+      });
+      this.forceUpdate();
+    }
+  };
+
   private _columnCount: any;
   private _columnWidth: any;
   private _rowHeight: any;
@@ -63,6 +119,13 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
   };
 
   private _onRenderCell = (item: any, index: any): JSX.Element => {
+    const { selection } = this.state;
+
+    let isSelected = false;
+
+    if (selection && index !== undefined) {
+      isSelected = selection.isIndexSelected(index);
+    }
     return (
       <div
         className="folder-item-contain"
@@ -79,21 +142,34 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
         <div className="folder-content">
           <span
             className={
-              item.check
+              isSelected
                 ? "folder-content-check is-checked"
                 : "folder-content-check"
             }
             role="checkbox"
             aria-checked="true"
+            data-is-focusable={true}
+            data-selection-toggle={true}
             onClick={() => {
-              this.props.onSelect(item);
+              this.props.onSelect(item, !item.check);
             }}
           >
-            <Check className={classNames.check} checked={item.check} />
+            <Check className={classNames.check} checked={isSelected} />
           </span>
-          <div className="folder-content-sizer">
+          <div
+            className="folder-content-sizer"
+            onClick={() => {
+              this.props.onSelect(item, true);
+            }}
+          >
             <div className="folder-content-padder">
-              <div className="folder-cover">
+              <div
+                className="folder-cover"
+                style={{ cursor: "pointer" }}
+                onDoubleClick={() => {
+                  alert("Open folder");
+                }}
+              >
                 <i className="folder-cover-back">
                   <img src="https://spoprod-a.akamaihd.net/files/fabric/office-ui-fabric-react-assets/foldericons-fluent/folder-large_backplate.svg" />
                 </i>
@@ -119,23 +195,26 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
     );
   };
 
-  private _onCheckboxChange = (ev: any, isChecked: any) => {
-    console.log(`The option has been changed to ${isChecked}.`);
-  };
-
   public render() {
-    console.log(this.props.items);
+    const { selection } = this.state;
     return (
-      <FocusZone>
-        <List
-          className="folder-contain"
-          items={this.props.items}
-          getItemCountForPage={this._getItemCountForPage}
-          getPageHeight={this._getPageHeight}
-          renderedWindowsAhead={4}
-          onRenderCell={this._onRenderCell}
-        />
-      </FocusZone>
+      <Fabric>
+        <SelectionZone selection={selection}>
+          <div>{this.state.selectionDetails}</div>
+          <List
+            className="folder-contain"
+            items={this.props.items}
+            getItemCountForPage={this._getItemCountForPage}
+            getPageHeight={this._getPageHeight}
+            renderedWindowsAhead={4}
+            onRenderCell={this._onRenderCell}
+          />
+        </SelectionZone>
+      </Fabric>
     );
+  }
+
+  public componentDidMount(): void {
+    this._hasMounted = true;
   }
 }

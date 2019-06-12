@@ -8,7 +8,8 @@ import {
   DetailsListLayoutMode,
   Fabric,
   mergeStyleSets,
-  IObjectWithKey
+  IObjectWithKey,
+  SelectionZone
 } from "office-ui-fabric-react";
 import { IDocument } from "../App";
 
@@ -44,17 +45,9 @@ const classNames = mergeStyleSets({
     maxHeight: "16px",
     maxWidth: "16px"
   },
-  controlWrapper: {
-    display: "flex",
-    flexWrap: "wrap"
-  },
-  exampleToggle: {
-    display: "inline-block",
-    marginBottom: "10px",
-    marginRight: "30px"
-  },
   selectionDetails: {
-    marginBottom: "20px"
+    marginBottom: "20px",
+    marginLeft: "20px"
   }
 });
 
@@ -189,7 +182,6 @@ export class FolderItemsGrid extends React.Component<
         <div className={classNames.selectionDetails}>
           {this.state.selectionDetails}
         </div>
-        <MarqueeSelection selection={this._selection}>
           <DetailsList
             items={this.props.items}
             columns={this.state.columns}
@@ -205,7 +197,6 @@ export class FolderItemsGrid extends React.Component<
             ariaLabelForSelectAllCheckbox="Toggle selection for all items"
             onItemContextMenu={this._onItemContextMenu}
           />
-        </MarqueeSelection>
       </Fabric>
     );
   }
