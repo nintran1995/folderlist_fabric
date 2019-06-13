@@ -218,12 +218,14 @@ export class FolderItemsGrid extends React.Component<
     ev: React.MouseEvent<HTMLElement>,
     column: IColumn
   ): void => {
+    debugger;
     const { columns } = this.state;
     const { items } = this.props;
     const newColumns: IColumn[] = columns.slice();
     const currColumn: IColumn = newColumns.filter(
       currCol => column.key === currCol.key
     )[0];
+
     newColumns.forEach((newCol: IColumn) => {
       if (newCol === currColumn) {
         currColumn.isSortedDescending = !currColumn.isSortedDescending;
@@ -233,6 +235,7 @@ export class FolderItemsGrid extends React.Component<
         newCol.isSortedDescending = true;
       }
     });
+
     const newItems = _copyAndSort(
       items,
       currColumn.fieldName!,

@@ -1,5 +1,11 @@
 import React from "react";
-import { Fabric, TextField, CommandBar } from "office-ui-fabric-react";
+import {
+  Fabric,
+  TextField,
+  CommandBar,
+  ContextualMenuItemType,
+  IContextualMenuItem
+} from "office-ui-fabric-react";
 import "./App.css";
 import { FolderItems } from "./FolderItem/FolderItems";
 import { FolderItemsGrid } from "./FolderItem/FolderItemsGrid";
@@ -10,6 +16,7 @@ export interface IListGridExampleStates {
   isOpenContextualMenu: boolean;
   isGrid: boolean;
   items: IDocument[];
+  selection?: { [key: string]: boolean };
 }
 export interface IDocument {
   index: number;
@@ -130,14 +137,13 @@ export class App extends React.Component<
   constructor(props: IListGridExampleProps) {
     super(props);
 
-
     this.state = {
       isOpenContextualMenu: false,
       isGrid: false,
-      items: _generateDocuments()
+      items: _generateDocuments(),
+      selection: {},
     };
   }
-
 
   private _onCloseMenuContext = () => {
     this.setState({ isOpenContextualMenu: false });
@@ -152,7 +158,49 @@ export class App extends React.Component<
   clientX: any;
   clientY: any;
 
+  private _onToggleSelectBy = (ev?: any, item?: IContextualMenuItem): void => {
+    const { selection: selection } = this.state;
+
+    // ev!.preventDefault();
+    switch (item!.key) {
+      case "name": {
+        selection![item!.key] = true;
+        selection!["modified"] = false;
+        selection!["size"] = false;
+        break;
+      }
+      case "modified": {
+        selection![item!.key] = true;
+        selection!["name"] = false;
+        selection!["size"] = false;
+        break;
+      }
+      case "size": {
+        selection![item!.key] = true;
+        selection!["name"] = false;
+        selection!["modified"] = false;
+        break;
+      } 
+      case "ascending": {
+        selection![item!.key] = true;
+        selection!["descending"] = false;
+        break;
+      }
+      case "descending": {
+        selection![item!.key] = true;
+        selection!["ascending"] = false;
+        break;
+      }
+    }
+
+    this.setState({
+      selection: selection
+    });
+  };
+
   public render() {
+    const { selection: selectionBy } = this.state;
+
     return (
       <Fabric>
         <CommandBar
@@ -163,26 +211,6 @@ export class App extends React.Component<
               cacheKey: "myCacheKey", // changing this key will invalidate this items cache
               iconProps: {
                 iconName: "Add"
-              },
-              ariaLabel: "New",
-              subMenuProps: {
-                items: [
-                  {
-                    key: "emailMessage",
-                    name: "Email message",
-                    iconProps: {
-                      iconName: "Mail"
-                    },
-                    ["data-automation-id"]: "newEmailButton"
-                  },
-                  {
-                    key: "calendarEvent",
-                    name: "Calendar event",
-                    iconProps: {
-                      iconName: "Calendar"
-                    }
-                  }
-                ]
               }
             },
             {
@@ -237,21 +265,60 @@ export class App extends React.Component<
               }
             }
           ]}
-          overflowButtonProps={{ ariaLabel: "More commands" }}
           farItems={[
             {
               key: "sort",
               name: "Sort",
-              ariaLabel: "Sort",
               iconProps: {
                 iconName: "SortLines"
               },
-              onClick: () => console.log("Sort")
+              subMenuProps: {
+                items: [
+                  {
+                    key: "name",
+                    name: "Name",
+                    canCheck: true,
+                    isChecked: selectionBy!["name"],
+                    onClick: this._onToggleSelectBy
+                  },
+                  {
+                    key: "modified",
+                    name: "Modified",
+                    canCheck: true,
+                    isChecked: selectionBy!["modified"],
+                    onClick: this._onToggleSelectBy
+                  },
+                  {
+                    key: "size",
+                    name: "Size",
+                    canCheck: true,
+                    isChecked: selectionBy!["size"],
+                    onClick: this._onToggleSelectBy
+                  },
+                  {
+                    key: "divider_1",
+                    itemType: ContextualMenuItemType.Divider
+                  },
+                  {
+                    key: "ascending",
+                    name: "Ascending",
+                    canCheck: true,
+                    isChecked: selectionBy!["ascending"],
+                    onClick: this._onToggleSelectBy
+                  },
+                  {
+                    key: "descending",
+                    name: "Descending",
+                    canCheck: true,
+                    isChecked: selectionBy!["descending"],
+                    onClick: this._onToggleSelectBy
+                  }
+                ]
+              }
             },
             {
               key: "tile",
               name: "Grid view",
-              ariaLabel: "Grid view",
               iconProps: {
                 iconName: "Tiles"
               },
@@ -261,7 +328,6 @@ export class App extends React.Component<
             {
               key: "info",
               name: "Info",
-              ariaLabel: "Info",
               iconProps: {
                 iconName: "Info"
               },
@@ -269,9 +335,6 @@ export class App extends React.Component<
               onClick: () => console.log("Info")
             }
           ]}
-          ariaLabel={
-            "Use left and right arrow keys to navigate between commands"
-          }
         />
         {this.state.isGrid ? (
           <FolderItemsGrid

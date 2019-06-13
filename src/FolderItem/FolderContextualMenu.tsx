@@ -31,13 +31,13 @@ export class FolderContextualMenu extends React.Component<
         target={{ x: this.props.clinetX, y: this.props.clinetY }}
         items={[
           {
-            key: "newItem",
+            key: "open",
+            text: "Open",
             iconProps: {
-              iconName: "Add"
+              iconName: "FabricOpenFolderHorizontal"
             },
-            text: "New",
             onClick: () => {
-              alert("Add new");
+              alert("Open");
             }
           },
           {
@@ -45,15 +45,49 @@ export class FolderContextualMenu extends React.Component<
             itemType: ContextualMenuItemType.Divider
           },
           {
-            key: "upload",
+            key: "unmarkAsFavorite",
+            text: "Unmark As Favorite",
             iconProps: {
-              iconName: "Upload",
-              style: {
-                color: "salmon"
-              }
+              iconName: "Unfavorite"
             },
-            text: "Upload",
-            title: "Upload a file"
+            disabled: true,
+            onClick: () => {
+              alert("Unmark As Favorite");
+            }
+          },
+          {
+            key: "rename",
+            text: "Rename",
+            iconProps: {
+              iconName: "EditStyle"
+            },
+            onClick: () => {
+              alert("Rename");
+            }
+          },
+          {
+            key: "designFolderIcon",
+            text: "Design Folder Icon",
+            iconProps: {
+              iconName: "EditPhoto"
+            },
+            onClick: () => {
+              alert("Design Folder Icon");
+            }
+          },
+          {
+            key: "divider_2",
+            itemType: ContextualMenuItemType.Divider
+          },
+          {
+            key: "delete",
+            text: "Delete",
+            iconProps: {
+              iconName: "Delete"
+            },
+            onClick: () => {
+              alert("Delete");
+            }
           }
         ]}
       />
