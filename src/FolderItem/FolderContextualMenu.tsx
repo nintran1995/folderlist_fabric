@@ -26,7 +26,7 @@ export class FolderContextualMenu extends React.Component<
       <ContextualMenu
         shouldFocusOnMount={true}
         directionalHint={DirectionalHint.bottomLeftEdge}
-        gapSpace={10}
+        gapSpace={5}
         onDismiss={this.props.onClose}
         target={{ x: this.props.clinetX, y: this.props.clinetY }}
         items={[

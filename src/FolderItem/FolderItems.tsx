@@ -8,7 +8,12 @@ import {
   Selection,
   SelectionZone,
   ISelection,
-  SelectionMode
+  SelectionMode,
+  TooltipHost,
+  getId,
+  DirectionalHint,
+  Icon,
+  IconButton
 } from "office-ui-fabric-react";
 import { IDocument } from "../App";
 
@@ -102,6 +107,7 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
   private _columnCount: any;
   private _columnWidth: any;
   private _rowHeight: any;
+  private _hostId: string = getId("tooltipHost");
 
   private _getItemCountForPage = (itemIndex: any, surfaceRect: any): any => {
     if (itemIndex === 0) {
@@ -177,7 +183,25 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
                   {index % 2 != 0 ? index : 0}
                 </span>
               </div>
-              <span className="folder-content-info">{item.name}</span>
+              <div className="folder-content-favorite">
+                <IconButton
+                  iconProps={{ iconName: "FavoriteStarFill" }}
+                  onClick={() => {
+                    alert("Unmark favorite");
+                  }}
+                />
+              </div>
+              <div className="folder-content-info">
+                <TooltipHost
+                  content={item.name}
+                  id={this._hostId}
+                  calloutProps={{
+                    directionalHint: DirectionalHint.bottomCenter
+                  }}
+                >
+                  <span aria-labelledby={this._hostId}>{item.name}</span>
+                </TooltipHost>
+              </div>
             </div>
           </div>
         </div>

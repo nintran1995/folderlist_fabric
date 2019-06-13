@@ -181,8 +181,7 @@ html[dir='ltr'] .folder-cover .folder-content-child {
   color: black;
   padding: 10px;
   position: absolute;
-  bottom: 20px;
-  font-size: 12px;
+  bottom: 10px;
   left: 0;
   width: 100%;
   box-sizing: border-box;
@@ -196,6 +195,20 @@ html[dir='ltr'] .folder-cover .folder-content-child {
 }
 
 /*#endregion folder-item-info*/
+
+/*#region folder-content-favorite*/
+
+.folder-content-favorite {
+  position: absolute;
+  top: 45px;
+  left: 25px;
+}
+
+.folder-content-favorite .ms-Button.ms-Button--icon:hover {
+  background-color: transparent;
+}
+
+/*#endregion folder-content-favorite*/
 
 /*#region folder-item-check*/
 
