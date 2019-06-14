@@ -182,14 +182,14 @@ export class FolderItems extends React.Component<Props, IFolderItemsState> {
                 <span className="folder-content-child">
                   {index % 2 != 0 ? index : 0}
                 </span>
-              </div>
-              <div className="folder-content-favorite">
-                <IconButton
-                  iconProps={{ iconName: "FavoriteStarFill" }}
-                  onClick={() => {
-                    alert("Unmark favorite");
-                  }}
-                />
+                <div className="folder-content-favorite">
+                  <IconButton
+                    iconProps={{ iconName: "FavoriteStarFill" }}
+                    onClick={() => {
+                      alert("Unmark favorite");
+                    }}
+                  />
+                </div>
               </div>
               <div className="folder-content-info">
                 <TooltipHost
